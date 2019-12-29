@@ -37,7 +37,7 @@ void loop() {
     CAN.readMsgBuf(&len, buf);    // read data,  len: data length, buf: data buf
 
     unsigned int canId = CAN.getCanId();
-    if (canId == 8192) //2000
+    if (canId == 8192) //2000 - location of data which is spat out by the ECU for the following data
     {
       dataArray[0] = ((((double)combineBytes(buf[0], buf[1])) / 14500) * 100); //RPM
       dataArray[1] = ((((double)combineBytes(buf[2], buf[3])) / 25600) * 100); //TPS
@@ -67,7 +67,7 @@ void loop() {
       dataArray[14] = ((double)combineBytes(buf[4], buf[5])) / 100; //Injection ms
       dataArray[15] = ((double)combineBytes(buf[6], buf[7])) / 10; //Fuel Con L/100km
     }
-
+    
   }
 }
 
@@ -76,4 +76,37 @@ uint16_t combineBytes(byte left, byte right)
   uint16_t newnumber = (left << 8);
   newnumber = newnumber + right;
   return newnumber;
+}
+
+//@brief
+// function prints out what is within the can bus array for debugging purposes
+void printOut()
+{
+
+printoutput("RPM:",(int)dataArray[0]);
+printoutput("TPS:",(int)dataArray[1]);
+printoutput("Water Temp:",(int)dataArray[2]);
+printoutput("Air Temp:",(int)dataArray[3]);
+printoutput("MAP Kpa:",(int)dataArray[4]);
+printoutput("Lambda:",(int)dataArray[5]);
+printoutput("Kph:",(int)dataArray[6]);
+printoutput("Oil P kpa:",(int)dataArray[7]);
+printoutput("Fuel Pkpa:",(int)dataArray[8]);
+printoutput("Oil Temp:",(int)dataArray[9]);
+printoutput("Battery Volts:",(int)dataArray[10]);
+printoutput("Fuel Con:",(int)dataArray[11]);
+printoutput("gear:",(int)dataArray[12]);
+printoutput("Advance deg:",(int)dataArray[13]);
+printoutput("Injection ms:",(int)dataArray[14]);
+printoutput("Fuel Con L/100km:",(int)dataArray[15]);
+printoutput("RPM NO:",(int)dataArray[16]);
+
+Serial.println();
+  
+}
+
+void printoutput(String var, int data){
+  Serial.print(var);
+  Serial.print(data);
+  Serial.print("  |  ");
 }
