@@ -10,7 +10,7 @@ MCP_CAN CAN(SPI_CS_PIN);    // Set CS pin
 //data for tranmission
 #define printDebugMessage 0
 #define printMessageForTransiever 1
-enum infoECU { RPM = 0, TPS, WATER_TEMP, AIR_TEMP, MAP, LAMBDA, KPH, OIL_PRESSURE, FUEL_PRESSURE, OIL_TEMP, BATT_VOLT, FUEL_CONN_1, GEAR, ADVANCE_DEG, INJECTION_MS, FUEL_CONN_2, BUFFER_SIZE}; //using 'BUFFER_SIZE' as parameter for buffer size, enum can be extended to add more data
+enum infoECU { RPM = 0, TPS, WATER_TEMP, AIR_TEMP, MAP, LAMBDA, KPH, OIL_PRESSURE, FUEL_PRESSURE, OIL_TEMP, BATT_VOLT, FUEL_CONN_1, GEAR, ADVANCE_DEG, INJECTION_MS, FUEL_CONN_2, RPM_NO, BUFFER_SIZE}; //using 'BUFFER_SIZE' as parameter for buffer size, enum can be extended to add more data
 double dataArray[BUFFER_SIZE] = {0}; //17 pieces of data collected from ECU can bus
 
 //debug - uncomment to view the message in serial terminal
@@ -117,23 +117,23 @@ uint16_t combineBytes(byte left, byte right)
 void printOutECUdata(int mode)
 {
 
-  printoutput("RPM:", (int)dataArray[0], mode);
-  printoutput("TPS:", (int)dataArray[1], mode);
-  printoutput("Water Temp:", (int)dataArray[2], mode);
-  printoutput("Air Temp:", (int)dataArray[3], mode);
-  printoutput("MAP Kpa:", (int)dataArray[4], mode);
-  printoutput("Lambda:", (int)dataArray[5], mode);
-  printoutput("Kph:", (int)dataArray[6], mode);
-  printoutput("Oil P kpa:", (int)dataArray[7], mode);
-  printoutput("Fuel Pkpa:", (int)dataArray[8], mode);
-  printoutput("Oil Temp:", (int)dataArray[9], mode);
-  printoutput("Battery Volts:", (int)dataArray[10], mode);
-  printoutput("Fuel Con:", (int)dataArray[11], mode);
-  printoutput("gear:", (int)dataArray[12], mode);
-  printoutput("Advance deg:", (int)dataArray[13], mode);
-  printoutput("Injection ms:", (int)dataArray[14], mode);
-  printoutput("Fuel Con L/100km:", (int)dataArray[15], mode);
-  printoutput("RPM NO:", (int)dataArray[16], mode);
+  printoutput("RPM:", (int)dataArray[RPM], mode);
+  printoutput("TPS:", (int)dataArray[TPS], mode);
+  printoutput("Water Temp:", (int)dataArray[WATER_TEMP], mode);
+  printoutput("Air Temp:", (int)dataArray[AIR_TEMP], mode);
+  printoutput("MAP Kpa:", (int)dataArray[MAP], mode);
+  printoutput("Lambda:", (int)dataArray[LAMBDA], mode);
+  printoutput("Kph:", (int)dataArray[KPH], mode);
+  printoutput("Oil P kpa:", (int)dataArray[OIL_PRESSURE], mode);
+  printoutput("Fuel Pkpa:", (int)dataArray[FUEL_PRESSURE], mode);
+  printoutput("Oil Temp:", (int)dataArray[OIL_TEMP], mode);
+  printoutput("Battery Volts:", (int)dataArray[BATT_VOLT], mode);
+  printoutput("Fuel Con:", (int)dataArray[FUEL_CONN_1], mode);
+  printoutput("gear:", (int)dataArray[GEAR], mode);
+  printoutput("Advance deg:", (int)dataArray[ADVANCE_DEG], mode);
+  printoutput("Injection ms:", (int)dataArray[INJECTION_MS], mode);
+  printoutput("Fuel Con L/100km:", (int)dataArray[FUEL_CONN_2], mode);
+  printoutput("RPM NO:", (int)dataArray[RPM_NO], mode);
 
   Serial.println(); //return carriage and newline
 
