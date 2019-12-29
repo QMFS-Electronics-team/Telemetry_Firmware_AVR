@@ -8,8 +8,10 @@ const int SPI_CS_PIN = 10; //Chip select pin
 MCP_CAN CAN(SPI_CS_PIN);    // Set CS pin
 
 //data for tranmission
-enum info { RPM = 0, GEAR, TPS, SPEED_MPH, WATER_TEMP, AIR_TEMP, MAP, BATT_VOLT, AMBIENT_TEMP, CANBUS_ERROR, BUFFER_SIZE}; //using 'BUFFER_SIZE' as parameter for buffer size, enum can be extended to add more data
-double dataArray[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; //17 pieces of data collected from ECU can bus
+#define printDebugMessage 0
+#define printMessageForTransiever 1
+enum infoECU { RPM = 0, TPS, WATER_TEMP, AIR_TEMP, MAP, LAMBDA, KPH, OIL_PRESSURE, FUEL_PRESSURE, OIL_TEMP, BATT_VOLT, FUEL_CONN_1, GEAR, ADVANCE_DEG, INJECTION_MS, FUEL_CONN_2, BUFFER_SIZE}; //using 'BUFFER_SIZE' as parameter for buffer size, enum can be extended to add more data
+double dataArray[BUFFER_SIZE] = {0}; //17 pieces of data collected from ECU can bus
 
 //debug - uncomment to view the message in serial terminal
 #define DEBUG //Use debugging tool print out information via the serial comms, disable when not debugging as it will cause issues with code latency
@@ -30,6 +32,37 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
 
+  readECUdata();
+
+#ifdef DEBUG
+  printOutECUdata(printDebugMessage); //print out data in certain way for readability for the user for debugging
+#else
+  printOutECUdata(printMessageForTransiever); //send message in csv format for the transiever module
+#endif
+
+  delay(1000);
+}
+
+void readECUdata() {
+  
+//data stored in following order first num is array index
+    // 0 - RPM*
+    // 1 - TPS*
+    // 2 - Water temp C*
+    // 3 - Air temp C*
+    // 4 - MAP Kpa*
+    // 5 - Lambda*
+    // 6 - KPH
+    // 7 - Oil P Kpa
+    // 8 - Fuel P Kpa
+    // 9 - Oil Temp
+    // 10 - Volts
+    // 11 - Fuel Con L/Hr
+    // 12 - Gear
+    // 13 - Advance Deg
+    // 14 - Injection ms
+    // 15 - Fuel Con L/100 Km
+    //16 - RPM NO
   if (CAN_MSGAVAIL == CAN.checkReceive())           // check if data coming
   {
     unsigned char len = 0;
@@ -67,8 +100,9 @@ void loop() {
       dataArray[14] = ((double)combineBytes(buf[4], buf[5])) / 100; //Injection ms
       dataArray[15] = ((double)combineBytes(buf[6], buf[7])) / 10; //Fuel Con L/100km
     }
-    
+
   }
+
 }
 
 uint16_t combineBytes(byte left, byte right)
@@ -80,33 +114,41 @@ uint16_t combineBytes(byte left, byte right)
 
 //@brief
 // function prints out what is within the can bus array for debugging purposes
-void printOut()
+void printOutECUdata(int mode)
 {
 
-printoutput("RPM:",(int)dataArray[0]);
-printoutput("TPS:",(int)dataArray[1]);
-printoutput("Water Temp:",(int)dataArray[2]);
-printoutput("Air Temp:",(int)dataArray[3]);
-printoutput("MAP Kpa:",(int)dataArray[4]);
-printoutput("Lambda:",(int)dataArray[5]);
-printoutput("Kph:",(int)dataArray[6]);
-printoutput("Oil P kpa:",(int)dataArray[7]);
-printoutput("Fuel Pkpa:",(int)dataArray[8]);
-printoutput("Oil Temp:",(int)dataArray[9]);
-printoutput("Battery Volts:",(int)dataArray[10]);
-printoutput("Fuel Con:",(int)dataArray[11]);
-printoutput("gear:",(int)dataArray[12]);
-printoutput("Advance deg:",(int)dataArray[13]);
-printoutput("Injection ms:",(int)dataArray[14]);
-printoutput("Fuel Con L/100km:",(int)dataArray[15]);
-printoutput("RPM NO:",(int)dataArray[16]);
+  printoutput("RPM:", (int)dataArray[0], mode);
+  printoutput("TPS:", (int)dataArray[1], mode);
+  printoutput("Water Temp:", (int)dataArray[2], mode);
+  printoutput("Air Temp:", (int)dataArray[3], mode);
+  printoutput("MAP Kpa:", (int)dataArray[4], mode);
+  printoutput("Lambda:", (int)dataArray[5], mode);
+  printoutput("Kph:", (int)dataArray[6], mode);
+  printoutput("Oil P kpa:", (int)dataArray[7], mode);
+  printoutput("Fuel Pkpa:", (int)dataArray[8], mode);
+  printoutput("Oil Temp:", (int)dataArray[9], mode);
+  printoutput("Battery Volts:", (int)dataArray[10], mode);
+  printoutput("Fuel Con:", (int)dataArray[11], mode);
+  printoutput("gear:", (int)dataArray[12], mode);
+  printoutput("Advance deg:", (int)dataArray[13], mode);
+  printoutput("Injection ms:", (int)dataArray[14], mode);
+  printoutput("Fuel Con L/100km:", (int)dataArray[15], mode);
+  printoutput("RPM NO:", (int)dataArray[16], mode);
 
-Serial.println();
-  
+  Serial.println(); //return carriage and newline
+
 }
 
-void printoutput(String var, int data){
-  Serial.print(var);
-  Serial.print(data);
-  Serial.print("  |  ");
+void printoutput(String var, int data, int mode) {
+  switch (mode) {
+    case printDebugMessage:
+      Serial.print(var);
+      Serial.print(data);
+      Serial.print("  |  ");
+      break;
+    case printMessageForTransiever:
+      Serial.print(data);
+      Serial.print(",");
+      break;
+  }
 }
