@@ -15,7 +15,7 @@ double dataArray[BUFFER_SIZE] = {0}; //17 pieces of data collected from ECU can 
 
 //debug - uncomment to view the message in serial terminal
 #define DEBUG //Use debugging tool print out information via the serial comms, disable when not debugging as it will cause issues with code latency
-//comment out the define if you wish to not print out the serial messages
+//comment out the define if you wish to not print out the serial messages and transmit data to transiever module
 
 void setup() {
   // put your setup code here, to run once:
@@ -26,7 +26,7 @@ void setup() {
     Serial.println("CAN BUS Shield has failed. Init CAN BUS Shield again...");
     delay(500); //re-attempt to connect after a delay
   }
-  Serial.println("CAN BUS Shield init ok!");
+  Serial.println("CAN BUS Shield init at 1Mbps ok!");
 }
 
 void loop() {
@@ -63,6 +63,7 @@ void readECUdata() {
     // 14 - Injection ms
     // 15 - Fuel Con L/100 Km
     //16 - RPM NO
+    
   if (CAN_MSGAVAIL == CAN.checkReceive())           // check if data coming
   {
     unsigned char len = 0;
@@ -144,9 +145,10 @@ void printoutput(String var, int data, int mode) {
     case printDebugMessage:
       Serial.print(var);
       Serial.print(data);
-      Serial.print("  |  ");
+      Serial.print(" | ");
       break;
     case printMessageForTransiever:
+    //print for csv format
       Serial.print(data);
       Serial.print(",");
       break;
