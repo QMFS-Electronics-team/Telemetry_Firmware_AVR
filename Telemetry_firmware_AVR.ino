@@ -14,7 +14,7 @@ enum infoECU { RPM = 0, TPS, WATER_TEMP, AIR_TEMP, MAP, LAMBDA, KPH, OIL_PRESSUR
 double dataArray[BUFFER_SIZE] = {0}; //17 pieces of data collected from ECU can bus
 
 //debug - uncomment to view the message in serial terminal
-#define DEBUG //Use debugging tool print out information via the serial comms, disable when not debugging as it will cause issues with code latency
+//#define DEBUG //Use debugging tool print out information via the serial comms, disable when not debugging as it will cause issues with code latency
 //comment out the define if you wish to not print out the serial messages and transmit data to transiever module
 
 void setup() {
@@ -34,36 +34,30 @@ void loop() {
 
   readECUdata();
 
-#ifdef DEBUG
-  printOutECUdata(printDebugMessage); //print out data in certain way for readability for the user for debugging
-#else
-  printOutECUdata(printMessageForTransiever); //send message in csv format for the transiever module
-#endif
-
-  delay(1000);
+  //delay(1000);
 }
 
 void readECUdata() {
-  
-//data stored in following order first num is array index
-    // 0 - RPM*
-    // 1 - TPS*
-    // 2 - Water temp C*
-    // 3 - Air temp C*
-    // 4 - MAP Kpa*
-    // 5 - Lambda*
-    // 6 - KPH
-    // 7 - Oil P Kpa
-    // 8 - Fuel P Kpa
-    // 9 - Oil Temp
-    // 10 - Volts
-    // 11 - Fuel Con L/Hr
-    // 12 - Gear
-    // 13 - Advance Deg
-    // 14 - Injection ms
-    // 15 - Fuel Con L/100 Km
-    //16 - RPM NO
-    
+
+  //data stored in following order first num is array index
+  // 0 - RPM*
+  // 1 - TPS*
+  // 2 - Water temp C*
+  // 3 - Air temp C*
+  // 4 - MAP Kpa*
+  // 5 - Lambda*
+  // 6 - KPH
+  // 7 - Oil P Kpa
+  // 8 - Fuel P Kpa
+  // 9 - Oil Temp
+  // 10 - Volts
+  // 11 - Fuel Con L/Hr
+  // 12 - Gear
+  // 13 - Advance Deg
+  // 14 - Injection ms
+  // 15 - Fuel Con L/100 Km
+  //16 - RPM NO
+
   if (CAN_MSGAVAIL == CAN.checkReceive())           // check if data coming
   {
     unsigned char len = 0;
@@ -101,6 +95,12 @@ void readECUdata() {
       dataArray[14] = ((double)combineBytes(buf[4], buf[5])) / 100; //Injection ms
       dataArray[15] = ((double)combineBytes(buf[6], buf[7])) / 10; //Fuel Con L/100km
     }
+
+#ifdef DEBUG
+    printOutECUdata(printDebugMessage); //print out data in certain way for readability for the user for debugging
+#else
+    printOutECUdata(printMessageForTransiever); //send message in csv format for the transiever module
+#endif
 
   }
 
@@ -148,7 +148,7 @@ void printoutput(String var, int data, int mode) {
       Serial.print(" | ");
       break;
     case printMessageForTransiever:
-    //print for csv format
+      //print for csv format
       Serial.print(data);
       Serial.print(",");
       break;
