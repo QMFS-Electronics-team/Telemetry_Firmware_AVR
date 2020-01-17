@@ -12,7 +12,7 @@ MCP_CAN CAN(SPI_CS_PIN);    // Set CS pin
 #define printMessageForTransiever 1
 enum infoECU { RPM = 0, TPS, WATER_TEMP, AIR_TEMP, MAP, LAMBDA, KPH, OIL_PRESSURE, FUEL_PRESSURE, OIL_TEMP, BATT_VOLT, FUEL_CONN_1, GEAR, ADVANCE_DEG, INJECTION_MS, FUEL_CONN_2, RPM_NO, BUFFER_SIZE}; //using 'BUFFER_SIZE' as parameter for buffer size, enum can be extended to add more data
 double dataArray[BUFFER_SIZE] = {0}; //17 pieces of data collected from ECU can bus
-
+int fullDataIncrementer = 0; // only print out when all 4 can ID are read, this reduces wasted serial print 
 //debug - uncomment to view the message in serial terminal
 //#define DEBUG //Use debugging tool print out information via the serial comms, disable when not debugging as it will cause issues with code latency
 //comment out the define if you wish to not print out the serial messages and transmit data to transiever module
@@ -33,6 +33,14 @@ void loop() {
   // put your main code here, to run repeatedly:
 
   readECUdata();
+  
+if(fullDataIncrementer >= 3){
+#ifdef DEBUG
+    printOutECUdata(printDebugMessage); //print out data in certain way for readability for the user for debugging
+#else
+    printOutECUdata(printMessageForTransiever); //send message in csv format for the transiever module
+#endif
+}
 
   //delay(1000);
 }
@@ -60,6 +68,7 @@ void readECUdata() {
 
   if (CAN_MSGAVAIL == CAN.checkReceive())           // check if data coming
   {
+    fullDataIncrementer++; 
     unsigned char len = 0;
     unsigned char buf[8];
     CAN.readMsgBuf(&len, buf);    // read data,  len: data length, buf: data buf
@@ -95,12 +104,6 @@ void readECUdata() {
       dataArray[14] = ((double)combineBytes(buf[4], buf[5])) / 100; //Injection ms
       dataArray[15] = ((double)combineBytes(buf[6], buf[7])) / 10; //Fuel Con L/100km
     }
-
-#ifdef DEBUG
-    printOutECUdata(printDebugMessage); //print out data in certain way for readability for the user for debugging
-#else
-    printOutECUdata(printMessageForTransiever); //send message in csv format for the transiever module
-#endif
 
   }
 
